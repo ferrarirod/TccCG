@@ -10,7 +10,8 @@ import {initRenderer,
 
 let scene, renderer, camera, material, light, orbit; // variables 
 scene = new THREE.Scene();    // Create main scene
-renderer = initRenderer();    // Init a basic renderer
+renderer = initRenderer({canvas: document.getElementById("mainScene")});    // Init a basic renderer
+//renderer.setSize(960,1080,false);
 camera = initCamera(new THREE.Vector3(0, 15, 30)); // Init camera in this position
 material = initBasicMaterial(); // create a basic material
 light = initDefaultBasicLight(scene); // Create a basic light to illuminate the scene

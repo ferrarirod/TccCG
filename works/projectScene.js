@@ -10,15 +10,21 @@ import {initRenderer,
 
 let scene, renderer, camera, material, light, orbit; // variables 
 scene = new THREE.Scene();    // Create main scene
-renderer = initRenderer({canvas: document.getElementById("mainScene")});    // Init a basic renderer
-//renderer.setSize(960,1080,false);
+renderer = initRenderer();    // Init a basic renderer
 camera = initCamera(new THREE.Vector3(0, 15, 30)); // Init camera in this position
 material = initBasicMaterial(); // create a basic material
 light = initDefaultBasicLight(scene); // Create a basic light to illuminate the scene
 orbit = new OrbitControls( camera, renderer.domElement ); // Enable mouse rotation, pan, zoom etc.
 
 // Listen window size changes
-window.addEventListener( 'resize', function(){onWindowResize(camera, renderer)}, false );
+window.addEventListener( 'resize', function(){
+  camera.aspect = window.innerWidth*0.5 / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize( window.innerWidth*0.5, window.innerHeight );
+}, false );
+camera.aspect = window.innerWidth*0.5 / window.innerHeight;
+camera.updateProjectionMatrix();
+renderer.setSize( window.innerWidth*0.5, window.innerHeight );
 
 // Show axes (parameter is size of each axis)
 let axesHelper = new THREE.AxesHelper( 12 );
@@ -47,6 +53,7 @@ let controls = new InfoBox();
   controls.show();
 
 render();
+
 function render()
 {
   requestAnimationFrame(render);

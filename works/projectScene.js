@@ -15,6 +15,7 @@ camera = initCamera(new THREE.Vector3(0, 15, 30)); // Init camera in this positi
 material = initBasicMaterial(); // create a basic material
 light = initDefaultBasicLight(scene); // Create a basic light to illuminate the scene
 orbit = new OrbitControls( camera, renderer.domElement ); // Enable mouse rotation, pan, zoom etc.
+var clock = new THREE.Clock();
 
 // Listen window size changes
 window.addEventListener( 'resize', function(){
@@ -56,6 +57,47 @@ render();
 
 function render()
 {
+  var execBtn = document.getElementById("execute");
+  execBtn.addEventListener("click",function(){
+      clock.start();
+      executeCommand();
+      clock.stop(); 
+  });
+  var resetBtn = document.getElementById("reset");
+  resetBtn.addEventListener("click",function(){
+      resetPosition();
+  });
   requestAnimationFrame(render);
   renderer.render(scene, camera) // Render scene
+}
+
+function andarFrente(amount)
+{
+    cube.translateZ(amount * clock.getDelta());
+}
+
+function andarTras(amount)
+{
+    cube.translateZ(-amount * clock.getDelta());
+}
+
+function andarDireita(amount)
+{
+    cube.translateX(amount * clock.getDelta());
+}
+
+function andarEsquerda(amount)
+{
+    cube.translateX(-amount * clock.getDelta());
+}
+
+function executeCommand()
+{
+    var code = document.getElementById("codeToExecute");
+    eval(code.value);
+}
+
+function resetPosition()
+{
+  cube.position.set(0.0, 2.0, 0.0);
 }

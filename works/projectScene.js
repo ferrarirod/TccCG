@@ -58,11 +58,7 @@ render();
 function render()
 {
   var execBtn = document.getElementById("execute");
-  execBtn.addEventListener("click",function(){
-      clock.start();
-      executeCommand();
-      clock.stop(); 
-  });
+  execBtn.onclick = function() {executeCommand()}
   var resetBtn = document.getElementById("reset");
   resetBtn.addEventListener("click",function(){
       resetPosition();
@@ -73,22 +69,22 @@ function render()
 
 function andarFrente(amount)
 {
-    cube.translateZ(amount * clock.getDelta());
+    translate(cube.position,new THREE.Vector3(cube.position.x,cube.position.y,cube.position.z + amount));
 }
 
 function andarTras(amount)
 {
-    cube.translateZ(-amount * clock.getDelta());
+  translate(cube.position,new THREE.Vector3(cube.position.x,cube.position.y,cube.position.z - amount));
 }
 
 function andarDireita(amount)
 {
-    cube.translateX(amount * clock.getDelta());
+  translate(cube.position,new THREE.Vector3(cube.position.x + amount,cube.position.y,cube.position.z));
 }
 
 function andarEsquerda(amount)
 {
-    cube.translateX(-amount * clock.getDelta());
+  translate(cube.position,new THREE.Vector3(cube.position.x - amount,cube.position.y,cube.position.z));
 }
 
 function executeCommand()
@@ -100,4 +96,15 @@ function executeCommand()
 function resetPosition()
 {
   cube.position.set(0.0, 2.0, 0.0);
+}
+
+function translate(initPos,finalPos)
+{
+  if(initPos.x.toFixed(0) != finalPos.x.toFixed(0) || initPos.y.toFixed(0) != finalPos.y.toFixed(0) || initPos.z.toFixed(0) != finalPos.z.toFixed(0))
+  {
+    cube.position.lerp(finalPos,0.05);
+    window.requestAnimationFrame(function(){
+      translate(cube.position,finalPos);
+    });
+  }
 }

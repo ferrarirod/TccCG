@@ -1,2 +1,1 @@
-# CG
-Files for the Computer Graphics course in Three.js
+# Trabalho de Conclusão de Curso Rodrigo Oliveira Ferrari

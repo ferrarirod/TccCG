@@ -1,0 +1,25 @@
+{
+  "name": "tcccg",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ferrarirod/TccCG.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ferrarirod/TccCG/issues"
+  },
+  "homepage": "https://github.com/ferrarirod/TccCG#readme",
+  "dependencies": {
+    "es-module-shims": "^1.5.5",
+    "express": "^4.18.1",
+    "three": "^0.141.0"
+  }
+}

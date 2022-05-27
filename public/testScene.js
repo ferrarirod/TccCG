@@ -15,12 +15,11 @@ window.addEventListener( 'resize', function(){
 const controls = new OrbitControls(camera, renderer.domElement)
 
 const geometry = new THREE.BoxGeometry()
-const material = new THREE.MeshBasicMaterial({
-    color: 0x00ff00,
-    wireframe: true,
-})
+const material = new THREE.MeshLambertMaterial({color: "rgb(255,0,0)"})
 const cube = new THREE.Mesh(geometry, material)
+
 scene.add(cube)
+
 function animate() {
     requestAnimationFrame(animate)
     cube.rotation.x += 0.01
@@ -45,5 +44,6 @@ function resizeCanvasToDisplaySize()
         camera.updateProjectionMatrix();
     }
 }
+
 resizeCanvasToDisplaySize()
 animate()

@@ -75,7 +75,7 @@ function translateCube(initPos,finalPos)
     if(initPos.x.toFixed(0) != finalPos.x.toFixed(0) || initPos.y.toFixed(0) != finalPos.y.toFixed(0) || initPos.z.toFixed(0) != finalPos.z.toFixed(0))
     {
         cube.position.lerp(finalPos,0.05);
-        window.requestAnimationFrame(function(){
+        requestAnimationFrame(function(){
             translateCube(cube.position,finalPos)
         })
     }
@@ -84,21 +84,25 @@ function translateCube(initPos,finalPos)
 function andarFrente(amount)
 {
     translateCube(cube.position,new THREE.Vector3(cube.position.x,cube.position.y,cube.position.z + amount));
+    return amount
 }
 
 function andarTras(amount)
 {
     translateCube(cube.position,new THREE.Vector3(cube.position.x,cube.position.y,cube.position.z - amount));
+    return amount
 }
 
 function andarDireita(amount)
 {
     translateCube(cube.position,new THREE.Vector3(cube.position.x + amount,cube.position.y,cube.position.z));
+    return amount
 }
 
 function andarEsquerda(amount)
 {
     translateCube(cube.position,new THREE.Vector3(cube.position.x - amount,cube.position.y,cube.position.z));
+    return amount
 }
 
 function parseCode()
@@ -144,11 +148,11 @@ function parseCode()
 
 function readLineCodeFromString(line)
 {
-    return new Promise(function(resolve,reject){
+    return new Promise(function(resolve){
+        let timeMultiplier = eval(line)
         setTimeout(function(){
-            eval(line)
             resolve()
-        },1000)
+        },1000 + 10*timeMultiplier)
     })
 }
 
@@ -159,9 +163,11 @@ async function readParsedCode(parsedCode)
 
     if(valid)
     {
-        for(let i = 0; i < lineObjs.length;i++)
+        let i = 0
+        while(i < lineObjs.length)
         {
             await readLineCodeFromString(lineObjs[i].code)
+            i++
         }
     }
     else

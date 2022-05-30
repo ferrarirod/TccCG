@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="utf-8" />
+        <title>TCC Rodrigo Oliveira Ferrari</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="stylesheet" href="/packages/bootstrap/css/bootstrap.min.css">
+        <script async src="/packages/es-module-shims/es-module-shims.js"></script>
+        <script type="importmap">
+            {
+                "imports": {
+                    "three": "/packages/three/build/three.module.js"
+                }
+            }
+        </script>
+    </head>
+
+    <body>
+        <div class="container-fluid">
+            <div class="row ">
+                <div class="col-6 vh-100">
+                    <canvas id="sceneView" style="width: 100%; height: 100%;"></canvas>
+                </div>
+                <div class="col-6">
+                    <h1>Área de Interação</h1>
+                    <div class="form row">
+                        <div class="col-12">
+                            <label for="codeArea" class="form-label">Digite seu código aqui</label>
+                            <textarea name="codeArea" id="codeToExecute" cols="30" rows="10" class="form-control"></textarea>
+                        </div>
+                    </div>
+                    <div class="col-12 mt-2">
+                        <button id="execute" type="button" class="btn btn-primary">Executar</button>
+                        <button id="reset" type="button" class="btn btn-secondary">Reset</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script type="module" src="testScene.js"></script>
+        <script src="/packages/bootstrap/js/bootstrap.min.js"></script>
+        <script src="/packages/bootstrap/js/bootstrap.bundle.min.js"></script>
+    </body>
+</html>

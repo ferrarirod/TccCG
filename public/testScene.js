@@ -142,9 +142,49 @@ function parseCode()
     return [valid,lineObjs]
 }
 
+function readLineCodeFromString(line)
+{
+    return new Promise(function(resolve,reject){
+        setTimeout(function(){
+            eval(line)
+            resolve()
+        },1000)
+    })
+}
+
+async function readParsedCode(parsedCode)
+{
+    let valid = parsedCode[0]
+    let lineObjs = parsedCode[1]
+
+    if(valid)
+    {
+        for(let i = 0; i < lineObjs.length;i++)
+        {
+            await readLineCodeFromString(lineObjs[i].code)
+        }
+    }
+    else
+    {
+        console.log("Código inválido:")
+        for(let i = 0; i < lineObjs.length;i++)
+        {
+            if(!lineObjs[i].valid)
+            {
+                console.log(`${lineObjs[i].code} linha:${i+1}`)
+            }
+        }
+    }
+}
+
 const execBtn = document.getElementById("execute")
 execBtn.addEventListener("click",function(){
-    console.log(parseCode())
+    readParsedCode(parseCode())
+})
+
+const resetBtn = document.getElementById("reset")
+resetBtn.addEventListener("click",function(){
+    cube.position.set(0.0,2.0,0.0)
 })
 
 resizeCanvasToDisplaySize()

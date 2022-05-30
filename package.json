@@ -1,0 +1,24 @@
+{
+  "name": "tcccg",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "deploy": "gh-pages -d dist",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ferrarirod/TccCG.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ferrarirod/TccCG/issues"
+  },
+  "homepage": "https://github.com/ferrarirod/TccCG#readme",
+  "devDependencies": {
+    "gh-pages": "^4.0.0"
+  }
+}

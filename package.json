@@ -16,7 +16,7 @@
   "bugs": {
     "url": "https://github.com/ferrarirod/TccCG/issues"
   },
-  "homepage": "https://github.com/ferrarirod/TccCG#readme",
+  "homepage": "",
   "dependencies": {
     "bootstrap": "^5.1.3",
     "es-module-shims": "^1.5.5",

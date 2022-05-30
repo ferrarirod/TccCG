@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import { OrbitControls } from '/packages/three/examples/jsm/controls/OrbitControls.js'
+import { OrbitControls } from './packages/three/examples/jsm/controls/OrbitControls.js'
 
 const functionFilter = [
     new RegExp('^andarFrente\\(\\d+\\)$'),

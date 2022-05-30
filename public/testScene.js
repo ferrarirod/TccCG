@@ -1,6 +1,13 @@
 import * as THREE from 'three'
 import { OrbitControls } from './jsm/controls/OrbitControls.js'
 
+const functionFilter = [
+    new RegExp('^andarFrente\\(\\d+\\)$'),
+    new RegExp('^andarTras\\(\\d+\\)$'),
+    new RegExp('^andarEsquerda\\(\\d+\\)$'),
+    new RegExp('^andarDireita\\(\\d+\\)$'),
+]
+
 const mat4 = new THREE.Matrix4()
 
 const scene = new THREE.Scene()
@@ -62,6 +69,83 @@ function resizeCanvasToDisplaySize()
         camera.updateProjectionMatrix();
     }
 }
+
+function translateCube(initPos,finalPos)
+{
+    if(initPos.x.toFixed(0) != finalPos.x.toFixed(0) || initPos.y.toFixed(0) != finalPos.y.toFixed(0) || initPos.z.toFixed(0) != finalPos.z.toFixed(0))
+    {
+        cube.position.lerp(finalPos,0.05);
+        window.requestAnimationFrame(function(){
+            translateCube(cube.position,finalPos)
+        })
+    }
+}
+
+function andarFrente(amount)
+{
+    translateCube(cube.position,new THREE.Vector3(cube.position.x,cube.position.y,cube.position.z + amount));
+}
+
+function andarTras(amount)
+{
+    translateCube(cube.position,new THREE.Vector3(cube.position.x,cube.position.y,cube.position.z - amount));
+}
+
+function andarDireita(amount)
+{
+    translateCube(cube.position,new THREE.Vector3(cube.position.x + amount,cube.position.y,cube.position.z));
+}
+
+function andarEsquerda(amount)
+{
+    translateCube(cube.position,new THREE.Vector3(cube.position.x - amount,cube.position.y,cube.position.z));
+}
+
+function parseCode()
+{
+    let valid = false
+    let code  = document.getElementById("codeToExecute").value
+    let lines = code.split('\n')
+    let lineObjs = []
+
+    for(let i = 0; i < lines.length;i++)
+    {
+        let validLine = false
+        for(let j = 0; j < functionFilter.length;j++)
+        {
+            validLine = functionFilter[j].test(lines[i].normalize())
+            if(validLine)
+            {
+                break
+            }
+        }
+        let lineObj = {
+            code: lines[i],
+            valid: validLine
+        }
+        lineObjs.push(lineObj)
+    }
+
+    for(let i = 0;i < lineObjs.length;i++)
+    {
+        if(!lineObjs[i].valid)
+        {
+            valid = false
+            break
+        }
+        else
+        {
+            valid = true
+        }
+    }
+
+    return [valid,lineObjs]
+}
+
+const execBtn = document.getElementById("execute")
+execBtn.addEventListener("click",function(){
+    console.log(parseCode())
+})
 
 resizeCanvasToDisplaySize()
 animate()

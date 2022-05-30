@@ -2,7 +2,6 @@
   "name": "tcccg",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
   "scripts": {
     "deploy": "gh-pages -d dist",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -17,7 +16,7 @@
   "bugs": {
     "url": "https://github.com/ferrarirod/TccCG/issues"
   },
-  "homepage": "https://github.com/ferrarirod/TccCG#readme",
+  "homepage": "https://github.com/ferrarirod/TccCG/",
   "devDependencies": {
     "gh-pages": "^4.0.0"
   }

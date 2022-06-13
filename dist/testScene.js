@@ -108,7 +108,7 @@ function andarEsquerda(amount)
 function parseCode()
 {
     let valid = false
-    let code  = document.getElementById("codeToExecute").value
+    let code  = editor.doc.getValue()
     let lines = code.split('\n')
     let lineObjs = []
 
@@ -117,7 +117,7 @@ function parseCode()
         let validLine = false
         for(let j = 0; j < functionFilter.length;j++)
         {
-            validLine = functionFilter[j].test(lines[i].normalize())
+            validLine = functionFilter[j].test(lines[i].replace(/^\s+/g,''))
             if(validLine)
             {
                 break
@@ -172,12 +172,13 @@ async function readParsedCode(parsedCode)
     }
     else
     {
-        console.log("Código inválido:")
+        let console = document.getElementById("console-printing")
+        console.innerHTML += "Código Inválido:<br>"
         for(let i = 0; i < lineObjs.length;i++)
         {
             if(!lineObjs[i].valid)
             {
-                console.log(`${lineObjs[i].code} linha:${i+1}`)
+                console.innerHTML += `${lineObjs[i].code} linha:${i+1}<br>`
             }
         }
     }
@@ -191,6 +192,11 @@ execBtn.addEventListener("click",function(){
 const resetBtn = document.getElementById("reset")
 resetBtn.addEventListener("click",function(){
     cube.position.set(0.0,2.0,0.0)
+})
+
+const clsConsoleBtn = document.getElementById("clsConsole")
+clsConsoleBtn.addEventListener("click",function(){
+    document.getElementById("console-printing").innerHTML = null
 })
 
 resizeCanvasToDisplaySize()

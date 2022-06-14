@@ -2,10 +2,38 @@ import * as THREE from 'three'
 import { OrbitControls } from './packages/three/examples/jsm/controls/OrbitControls.js'
 
 const functionFilter = [
-    new RegExp('^andarFrente\\(\\d+\\)$'),
-    new RegExp('^andarTras\\(\\d+\\)$'),
-    new RegExp('^andarEsquerda\\(\\d+\\)$'),
-    new RegExp('^andarDireita\\(\\d+\\)$'),
+    {
+        filter: new RegExp('^andarFrente\\(\\d+\\)$'),
+        type: 'sequential'
+    },
+    {
+        filter: new RegExp('^andarTras\\(\\d+\\)$'),
+        type: 'sequential'
+    },
+    {
+        filter: new RegExp('^andarEsquerda\\(\\d+\\)$'),
+        type: 'sequential'
+    },
+    {
+        filter: new RegExp('^andarDireita\\(\\d+\\)$'),
+        type: 'sequential'
+    },
+    {
+        filter: new RegExp('^if\\(.+\\)$'),
+        type: 'normal'
+    },
+    {
+        filter: new RegExp('^if\\(.+\\){$'),
+        type: 'blockValidation'
+    },
+    {
+        filter: new RegExp('^{$'),
+        type: 'blockValidation'
+    },
+    {
+        filter: new RegExp('^}$'),
+        type: 'normal'
+    },
 ]
 
 const mat4 = new THREE.Matrix4()
@@ -83,110 +111,148 @@ function translateCube(initPos,finalPos)
 
 function andarFrente(amount)
 {
-    translateCube(cube.position,new THREE.Vector3(cube.position.x,cube.position.y,cube.position.z + amount));
-    return amount
+    return new Promise(function(resolve){
+        translateCube(cube.position,new THREE.Vector3(cube.position.x,cube.position.y,cube.position.z + amount));
+        setTimeout(function(){
+            return resolve()
+        },1000 + 10 * amount)
+    })
 }
 
 function andarTras(amount)
 {
-    translateCube(cube.position,new THREE.Vector3(cube.position.x,cube.position.y,cube.position.z - amount));
-    return amount
+    return new Promise(function(resolve){
+        translateCube(cube.position,new THREE.Vector3(cube.position.x,cube.position.y,cube.position.z - amount));
+        setTimeout(function(){
+            resolve()
+        },1000 + 10 * amount)
+    })
 }
 
 function andarDireita(amount)
 {
-    translateCube(cube.position,new THREE.Vector3(cube.position.x + amount,cube.position.y,cube.position.z));
-    return amount
+    return new Promise(function(resolve){
+        translateCube(cube.position,new THREE.Vector3(cube.position.x + amount,cube.position.y,cube.position.z));
+        setTimeout(function(){
+            resolve()
+        },1000 + 10 * amount)
+    })
 }
 
 function andarEsquerda(amount)
 {
-    translateCube(cube.position,new THREE.Vector3(cube.position.x - amount,cube.position.y,cube.position.z));
-    return amount
-}
-
-function parseCode()
-{
-    let valid = false
-    let code  = editor.doc.getValue()
-    let lines = code.split('\n')
-    let lineObjs = []
-
-    for(let i = 0; i < lines.length;i++)
-    {
-        let validLine = false
-        for(let j = 0; j < functionFilter.length;j++)
-        {
-            validLine = functionFilter[j].test(lines[i].replace(/^\s+/g,''))
-            if(validLine)
-            {
-                break
-            }
-        }
-        let lineObj = {
-            code: lines[i],
-            valid: validLine
-        }
-        lineObjs.push(lineObj)
-    }
-
-    for(let i = 0;i < lineObjs.length;i++)
-    {
-        if(!lineObjs[i].valid)
-        {
-            valid = false
-            break
-        }
-        else
-        {
-            valid = true
-        }
-    }
-
-    return [valid,lineObjs]
-}
-
-function readLineCodeFromString(line)
-{
     return new Promise(function(resolve){
-        let timeMultiplier = eval(line)
+        translateCube(cube.position,new THREE.Vector3(cube.position.x - amount,cube.position.y,cube.position.z));
         setTimeout(function(){
             resolve()
-        },1000 + 10*timeMultiplier)
+        },1000 + 10 * amount)
     })
 }
 
-async function readParsedCode(parsedCode)
+function printErrorOnConsole(content,line)
 {
-    let valid = parsedCode[0]
-    let lineObjs = parsedCode[1]
+    let consoleToPrint = document.getElementById("console-printing")
+    consoleToPrint.innerHTML += `Código Inválido:<br> ${content} linha: ${line}<br>`
+}
+
+function blockValidation(lines,index)
+{
+    let valid = false
+    let ignoreClosure = 0
+    for(let i = index + 1; i < lines.length;i++)
+    {
+        if(lines[i].includes('}'))
+        {
+            if(ignoreClosure == 0)
+            {
+                valid = true
+                break
+            }
+            else
+            {
+                ignoreClosure--
+            }
+        }
+        else if(lines[i].includes('{'))
+        {
+            ignoreClosure++
+        }
+    }
+
+    return valid
+}
+
+function parseCode(code)
+{
+    let codeParsed = "async function runCode(){\n";
+    let lines = code.split('\n')
+    let valid = true
+    for(let i = 0;i < lines.length;i++)
+    {
+        let validLine = false
+        let lineType
+        for(let j = 0;j < functionFilter.length;j++)
+        {
+            validLine = functionFilter[j].filter.test(lines[i].trim())
+            if(validLine)
+            {
+                lineType = functionFilter[j].type   
+                break
+            }
+        }
+        if(validLine)
+        {
+            if(lineType === "sequential")
+            {
+                let lineParsed = "await " + lines[i].trim() + "\n"
+                codeParsed += lineParsed
+            }
+            else if(lineType === 'blockValidation')
+            {
+                if(blockValidation(lines,i))
+                {
+                    let lineParsed = lines[i].trim() + "\n"
+                    codeParsed += lineParsed      
+                }
+                else
+                {
+                    printErrorOnConsole(`${lines[i]} (Bloco é aberto mas nunca é fechado)`,i+1)
+                    valid = false
+                    break
+                }
+            }
+            else
+            {
+                let lineParsed = lines[i].trim() + "\n"
+                codeParsed += lineParsed   
+            }
+        }
+        else
+        {
+            printErrorOnConsole(lines[i],i+1)
+            valid = false
+            break
+        }
+    }
 
     if(valid)
     {
-        let i = 0
-        while(i < lineObjs.length)
-        {
-            await readLineCodeFromString(lineObjs[i].code)
-            i++
-        }
+        codeParsed += "}\nrunCode()"
+        return codeParsed
     }
     else
     {
-        let console = document.getElementById("console-printing")
-        console.innerHTML += "Código Inválido:<br>"
-        for(let i = 0; i < lineObjs.length;i++)
-        {
-            if(!lineObjs[i].valid)
-            {
-                console.innerHTML += `${lineObjs[i].code} linha:${i+1}<br>`
-            }
-        }
+        return null
     }
 }
 
 const execBtn = document.getElementById("execute")
 execBtn.addEventListener("click",function(){
-    readParsedCode(parseCode())
+    let codeParsed = parseCode(editor.doc.getValue())
+    if(codeParsed != null)
+    {
+        eval(codeParsed)
+    }
 })
 
 const resetBtn = document.getElementById("reset")

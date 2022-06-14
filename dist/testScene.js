@@ -18,6 +18,22 @@ const functionFilter = [
         filter: new RegExp('^andarDireita\\(\\d+\\)$'),
         type: 'sequential'
     },
+    {
+        filter: new RegExp('^if\\(.+\\)$'),
+        type: 'normal'
+    },
+    {
+        filter: new RegExp('^if\\(.+\\){$'),
+        type: 'blockValidation'
+    },
+    {
+        filter: new RegExp('^{$'),
+        type: 'blockValidation'
+    },
+    {
+        filter: new RegExp('^}$'),
+        type: 'normal'
+    },
 ]
 
 const mat4 = new THREE.Matrix4()
@@ -139,6 +155,33 @@ function printErrorOnConsole(content,line)
     consoleToPrint.innerHTML += `Código Inválido:<br> ${content} linha: ${line}<br>`
 }
 
+function blockValidation(lines,index)
+{
+    let valid = false
+    let ignoreClosure = 0
+    for(let i = index + 1; i < lines.length;i++)
+    {
+        if(lines[i].includes('}'))
+        {
+            if(ignoreClosure == 0)
+            {
+                valid = true
+                break
+            }
+            else
+            {
+                ignoreClosure--
+            }
+        }
+        else if(lines[i].includes('{'))
+        {
+            ignoreClosure++
+        }
+    }
+
+    return valid
+}
+
 function parseCode(code)
 {
     let codeParsed = "async function runCode(){\n";
@@ -150,7 +193,7 @@ function parseCode(code)
         let lineType
         for(let j = 0;j < functionFilter.length;j++)
         {
-            validLine = functionFilter[j].filter.test(lines[i].replace(/^\s+/g,''))
+            validLine = functionFilter[j].filter.test(lines[i].trim())
             if(validLine)
             {
                 lineType = functionFilter[j].type   
@@ -161,8 +204,27 @@ function parseCode(code)
         {
             if(lineType === "sequential")
             {
-                let lineParsed = "await " + lines[i].replace(/^\s+/g,'') + "\n"
+                let lineParsed = "await " + lines[i].trim() + "\n"
                 codeParsed += lineParsed
+            }
+            else if(lineType === 'blockValidation')
+            {
+                if(blockValidation(lines,i))
+                {
+                    let lineParsed = lines[i].trim() + "\n"
+                    codeParsed += lineParsed      
+                }
+                else
+                {
+                    printErrorOnConsole(`${lines[i]} (Bloco é aberto mas nunca é fechado)`,i+1)
+                    valid = false
+                    break
+                }
+            }
+            else
+            {
+                let lineParsed = lines[i].trim() + "\n"
+                codeParsed += lineParsed   
             }
         }
         else
@@ -185,7 +247,7 @@ function parseCode(code)
 }
 
 const execBtn = document.getElementById("execute")
-execBtn.addEventListener("click",async function(){
+execBtn.addEventListener("click",function(){
     let codeParsed = parseCode(editor.doc.getValue())
     if(codeParsed != null)
     {

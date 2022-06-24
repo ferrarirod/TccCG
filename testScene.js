@@ -11,11 +11,11 @@ const functionFilter = [
         type: 'sequential'
     },
     {
-        filter: new RegExp('^andarEsquerda\\(\\d+\\)$'),
+        filter: new RegExp('^girarEsquerda\\(\\)$'),
         type: 'sequential'
     },
     {
-        filter: new RegExp('^andarDireita\\(\\d+\\)$'),
+        filter: new RegExp('^girarDireita\\(\\)$'),
         type: 'sequential'
     },
     {
@@ -27,8 +27,16 @@ const functionFilter = [
         type: 'blockValidation'
     },
     {
+        filter: new RegExp('^contemEsfera\\(\\)$'),
+        type: 'normal'
+    },
+    {
         filter: new RegExp('^{$'),
         type: 'blockValidation'
+    },
+    {
+        filter: new RegExp('^removeEsfera\\(\\)$'),
+        type: 'normal'
     },
     {
         filter: new RegExp('^}$'),
@@ -57,22 +65,35 @@ mainLight.position.set(2,1,1)
 const controls = new OrbitControls(camera, renderer.domElement)
 
 const planeGeometry = new THREE.PlaneGeometry(20,20,10,10)
+const grid = new THREE.GridHelper(20,10,"rgb(0,0,0)","rgb(0,0,0)")
+grid.rotateX(90 * (Math.PI/180))
+grid.translateY(0.01)
 const planeMaterial = new THREE.MeshLambertMaterial({color: "rgb(200,200,200)", side: THREE.DoubleSide})
 const plane = new THREE.Mesh(planeGeometry,planeMaterial)
+plane.add(grid)
 plane.receiveShadow = true
 plane.matrixAutoUpdate = false
 plane.matrix.identity()
-plane.matrix.multiply(mat4.makeTranslation(0.0,-0.1,0.0))
+plane.matrix.multiply(mat4.makeTranslation(0.0,0.0,0.0))
 plane.matrix.multiply(mat4.makeRotationX(-90 * (Math.PI/180)))
 
-const cubeGeometry = new THREE.BoxGeometry(4,4,4)
-const cubeMaterial = new THREE.MeshLambertMaterial({color: "rgb(255,0,0)"})
-const cube = new THREE.Mesh(cubeGeometry, cubeMaterial)
-cube.position.set(0.0,2.0,0.0)
+const coneGeometry = new THREE.ConeGeometry(1,2)
+const coneMaterial = new THREE.MeshLambertMaterial({color: "rgb(255,0,0)"})
+const cone = new THREE.Mesh(coneGeometry, coneMaterial)
+cone.rotateX(90 * (Math.PI/180))
+const cube = new THREE.Object3D()
+cube.add(cone)
+cube.position.set(-9.0,1.0,-9.0)
+
+const sphereGeometry = new THREE.SphereGeometry(1)
+const sphereMaterial = new THREE.MeshLambertMaterial({color: "rgb(0,0,255)"})
+const sphere = new THREE.Mesh(sphereGeometry,sphereMaterial)
+sphere.position.set(5.0,1.0,3.0)
 
 scene.add(ambientLight)
 scene.add(mainLight)
 scene.add(plane)
+scene.add(sphere)
 scene.add(cube)
 
 function animate() {
@@ -98,55 +119,154 @@ function resizeCanvasToDisplaySize()
     }
 }
 
-function translateCube(initPos,finalPos)
-{
-    if(initPos.x.toFixed(0) != finalPos.x.toFixed(0) || initPos.y.toFixed(0) != finalPos.y.toFixed(0) || initPos.z.toFixed(0) != finalPos.z.toFixed(0))
-    {
-        cube.position.lerp(finalPos,0.05);
-        requestAnimationFrame(function(){
-            translateCube(cube.position,finalPos)
-        })
-    }
-}
-
 function andarFrente(amount)
 {
+    let objectCopy = cube.clone()
+    objectCopy.translateZ(2*amount)
+    let newPosition = objectCopy.position
+    let requestID
     return new Promise(function(resolve){
-        translateCube(cube.position,new THREE.Vector3(cube.position.x,cube.position.y,cube.position.z + amount));
-        setTimeout(function(){
-            return resolve()
-        },1000 + 10 * amount)
+        function translateCube()
+        {
+            if(cube.position.x.toFixed(2) != newPosition.x.toFixed(2)||cube.position.y.toFixed(2) != newPosition.y.toFixed(2)||cube.position.z.toFixed(2) != newPosition.z.toFixed(2))
+            {
+                cube.position.lerp(newPosition,0.05)
+                requestID = requestAnimationFrame(translateCube)
+            }
+            else
+            {
+                cancelAnimationFrame(requestID)
+                objectCopy.children[0].geometry.dispose()
+                objectCopy.children[0].material.dispose()
+                resolve()
+            }
+        }
+        
+        requestID = requestAnimationFrame(translateCube)
     })
 }
 
 function andarTras(amount)
 {
+    let objectCopy = cube.clone()
+    objectCopy.translateZ(-2*amount)
+    let newPosition = objectCopy.position
+    let requestID
     return new Promise(function(resolve){
-        translateCube(cube.position,new THREE.Vector3(cube.position.x,cube.position.y,cube.position.z - amount));
-        setTimeout(function(){
-            resolve()
-        },1000 + 10 * amount)
+        function translateCube()
+        {
+            if(cube.position.x.toFixed(2) != newPosition.x.toFixed(2)||cube.position.y.toFixed(2) != newPosition.y.toFixed(2)||cube.position.z.toFixed(2) != newPosition.z.toFixed(2))
+            {
+                cube.position.lerp(newPosition,0.05)
+                requestID = requestAnimationFrame(translateCube)
+            }
+            else
+            {
+                cancelAnimationFrame(requestID)
+                objectCopy.children[0].geometry.dispose()
+                objectCopy.children[0].material.dispose()
+                resolve()
+            }
+        }
+        
+        requestID = requestAnimationFrame(translateCube)
     })
 }
 
-function andarDireita(amount)
+function girarDireita()
 {
+    let objectCopy = cube.clone()
+    objectCopy.rotateY(90 * (Math.PI/180))
+    let newPosition = new THREE.Quaternion()
+    newPosition.setFromEuler(objectCopy.rotation)
+    let requestID
     return new Promise(function(resolve){
-        translateCube(cube.position,new THREE.Vector3(cube.position.x + amount,cube.position.y,cube.position.z));
-        setTimeout(function(){
-            resolve()
-        },1000 + 10 * amount)
+        function rotateCube()
+        {
+            if(!cube.quaternion.equals(newPosition))
+            {
+                cube.quaternion.rotateTowards(newPosition,1 * (Math.PI/180))
+                requestID = requestAnimationFrame(rotateCube)
+            }
+            else
+            {
+                cancelAnimationFrame(requestID)
+                objectCopy.children[0].geometry.dispose()
+                objectCopy.children[0].material.dispose()
+                resolve()
+            }
+        }
+
+        requestID = requestAnimationFrame(rotateCube)
     })
 }
 
-function andarEsquerda(amount)
+function girarEsquerda()
 {
+    let objectCopy = cube.clone()
+    objectCopy.rotateY(-90 * (Math.PI/180))
+    let newPosition = new THREE.Quaternion()
+    newPosition.setFromEuler(objectCopy.rotation.clone())
+    let requestID
     return new Promise(function(resolve){
-        translateCube(cube.position,new THREE.Vector3(cube.position.x - amount,cube.position.y,cube.position.z));
-        setTimeout(function(){
-            resolve()
-        },1000 + 10 * amount)
+        function rotateCube()
+        {
+            if(!cube.quaternion.equals(newPosition))
+            {
+                cube.quaternion.rotateTowards(newPosition,1 * (Math.PI/180))
+                requestID = requestAnimationFrame(rotateCube)
+            }
+            else
+            {
+                cancelAnimationFrame(requestID)
+                objectCopy.children[0].geometry.dispose()
+                objectCopy.children[0].material.dispose()
+                resolve()
+            }
+        }
+
+        requestID = requestAnimationFrame(rotateCube)
     })
+}
+
+function checkCollision(object1,object2)
+{
+    object1.geometry.computeBoundingBox()
+    object2.geometry.computeBoundingBox()
+
+    object1.updateMatrixWorld()
+    object2.updateMatrixWorld()
+
+    let obj1Box = object1.geometry.boundingBox.clone()
+    obj1Box.applyMatrix4(object1.matrixWorld)
+    let obj2Box = object2.geometry.boundingBox.clone()
+    obj2Box.applyMatrix4(object2.matrixWorld)
+
+    return obj2Box.intersectsBox(obj1Box)
+}
+
+function contemEsfera()
+{
+    let result = checkCollision(cube.children[0],sphere)
+    
+    if(!result)
+    {
+        printOnConsole("Esfera não encontrada")
+    }
+
+    return result
+}
+
+function removeEsfera()
+{
+    sphere.visible = false
+    printOnConsole("Esfera removida")
+}
+
+function printOnConsole(content)
+{
+    let consoleToPrint = document.getElementById("console-printing")
+    consoleToPrint.innerHTML += `${content}<br>`   
 }
 
 function printErrorOnConsole(content,line)
@@ -191,47 +311,54 @@ function parseCode(code)
     {
         let validLine = false
         let lineType
-        for(let j = 0;j < functionFilter.length;j++)
+        if(lines[i].trim() != "")
         {
-            validLine = functionFilter[j].filter.test(lines[i].trim())
+            for(let j = 0;j < functionFilter.length;j++)
+            {
+                validLine = functionFilter[j].filter.test(lines[i].trim())
+                if(validLine)
+                {
+                    lineType = functionFilter[j].type   
+                    break
+                }
+            }
             if(validLine)
             {
-                lineType = functionFilter[j].type   
-                break
-            }
-        }
-        if(validLine)
-        {
-            if(lineType === "sequential")
-            {
-                let lineParsed = "await " + lines[i].trim() + "\n"
-                codeParsed += lineParsed
-            }
-            else if(lineType === 'blockValidation')
-            {
-                if(blockValidation(lines,i))
+                if(lineType === "sequential")
                 {
-                    let lineParsed = lines[i].trim() + "\n"
-                    codeParsed += lineParsed      
+                    let lineParsed = "await " + lines[i].trim() + "\n"
+                    codeParsed += lineParsed
+                }
+                else if(lineType === 'blockValidation')
+                {
+                    if(blockValidation(lines,i))
+                    {
+                        let lineParsed = lines[i].trim() + "\n"
+                        codeParsed += lineParsed      
+                    }
+                    else
+                    {
+                        printErrorOnConsole(`${lines[i]} (Bloco é aberto mas nunca é fechado)`,i+1)
+                        valid = false
+                        break
+                    }
                 }
                 else
                 {
-                    printErrorOnConsole(`${lines[i]} (Bloco é aberto mas nunca é fechado)`,i+1)
-                    valid = false
-                    break
+                    let lineParsed = lines[i].trim() + "\n"
+                    codeParsed += lineParsed   
                 }
             }
             else
             {
-                let lineParsed = lines[i].trim() + "\n"
-                codeParsed += lineParsed   
+                printErrorOnConsole(lines[i],i+1)
+                valid = false
+                break
             }
         }
         else
         {
-            printErrorOnConsole(lines[i],i+1)
-            valid = false
-            break
+            continue
         }
     }
 
@@ -247,17 +374,23 @@ function parseCode(code)
 }
 
 const execBtn = document.getElementById("execute")
-execBtn.addEventListener("click",function(){
+execBtn.addEventListener("click",async function(){
     let codeParsed = parseCode(editor.doc.getValue())
     if(codeParsed != null)
     {
-        eval(codeParsed)
+        document.getElementById("execute").disabled = true
+        document.getElementById("reset").disabled = true
+        await eval(codeParsed)
+        document.getElementById("execute").disabled = false
+        document.getElementById("reset").disabled = false
     }
 })
 
 const resetBtn = document.getElementById("reset")
 resetBtn.addEventListener("click",function(){
-    cube.position.set(0.0,2.0,0.0)
+    cube.position.set(-9.0,1.0,-9.0)
+    cube.rotation.set(0,0,0)
+    sphere.visible = true
 })
 
 const clsConsoleBtn = document.getElementById("clsConsole")

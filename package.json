@@ -17,7 +17,7 @@
   "bugs": {
     "url": "https://github.com/ferrarirod/TccCG/issues"
   },
-  "homepage": "https://github.com/ferrarirod/TccCG",
+  "homepage": "https://ferrarirod.github.io/TccCG/",
   "devDependencies": {
     "@parcel/transformer-sass": "^2.6.2",
     "gh-pages": "^4.0.0",

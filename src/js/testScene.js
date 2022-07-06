@@ -6,31 +6,31 @@ var cancelExecution = false
 
 const functionFilter = [
     {
-        filter: new RegExp('^andarFrente\\(\\d+\\)$'),
+        filter: new RegExp('^andarFrente(\\s+)?\\((\\s+)?\\d+(\\s+)?\\)(;)?$'),
         type: 'sequential'
     },
     {
-        filter: new RegExp('^andarTras\\(\\d+\\)$'),
+        filter: new RegExp('^andarTras(\\s+)?\\((\\s+)?\\d+(\\s+)?\\)(;)?$'),
         type: 'sequential'
     },
     {
-        filter: new RegExp('^girarEsquerda\\(\\)$'),
+        filter: new RegExp('^girarEsquerda(\\s+)?\\((\\s+)?\\)(;)?$'),
         type: 'sequential'
     },
     {
-        filter: new RegExp('^girarDireita\\(\\)$'),
+        filter: new RegExp('^girarDireita(\\s+)?\\((\\s+)?\\)(;)?$'),
         type: 'sequential'
     },
     {
-        filter: new RegExp('^if\\(.+\\)$'),
+        filter: new RegExp('^if(\\s+)?\\((\\s+)?.+\\)$'),
         type: 'normal'
     },
     {
-        filter: new RegExp('^if\\(.+\\){$'),
+        filter: new RegExp('^if(\\s+)?\\((\\s+)?.+\\){$'),
         type: 'blockValidation'
     },
     {
-        filter: new RegExp('^contemEsfera\\(\\)$'),
+        filter: new RegExp('^contemEsfera(\\s+)?\\((\\s+)?\\)(;)?$'),
         type: 'normal'
     },
     {
@@ -38,7 +38,7 @@ const functionFilter = [
         type: 'blockValidation'
     },
     {
-        filter: new RegExp('^removeEsfera\\(\\)$'),
+        filter: new RegExp('^removeEsfera(\\s+)?\\((\\s+)?\\)(;)?$'),
         type: 'normal'
     },
     {

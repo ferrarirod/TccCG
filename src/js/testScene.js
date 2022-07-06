@@ -1,5 +1,7 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+import { GridMapHelper } from './GridMapHelper'
+import { degreeToRadians } from './Util'
 import {editor} from './frontendTools'
 
 var cancelExecution = false
@@ -47,8 +49,6 @@ const functionFilter = [
     },
 ]
 
-const mat4 = new THREE.Matrix4()
-
 const scene = new THREE.Scene()
 
 const camera = new THREE.PerspectiveCamera(45, 2, 1, 1000)
@@ -67,31 +67,22 @@ mainLight.position.set(2,1,1)
 
 const controls = new OrbitControls(camera, renderer.domElement)
 
-const planeGeometry = new THREE.PlaneGeometry(20,20,10,10)
-const grid = new THREE.GridHelper(20,10,"rgb(0,0,0)","rgb(0,0,0)")
-grid.rotateX(90 * (Math.PI/180))
-grid.translateY(0.01)
-const planeMaterial = new THREE.MeshLambertMaterial({color: "rgb(200,200,200)", side: THREE.DoubleSide})
-const plane = new THREE.Mesh(planeGeometry,planeMaterial)
-plane.add(grid)
-plane.receiveShadow = true
-plane.matrixAutoUpdate = false
-plane.matrix.identity()
-plane.matrix.multiply(mat4.makeTranslation(0.0,0.0,0.0))
-plane.matrix.multiply(mat4.makeRotationX(-90 * (Math.PI/180)))
+const gridMapHelper = new GridMapHelper()
+
+const plane = gridMapHelper.createGridPlane()
 
 const coneGeometry = new THREE.ConeGeometry(1,2)
 const coneMaterial = new THREE.MeshLambertMaterial({color: "rgb(255,0,0)"})
 const cone = new THREE.Mesh(coneGeometry, coneMaterial)
-cone.rotateX(90 * (Math.PI/180))
+cone.rotateX(degreeToRadians(90))
 const cube = new THREE.Object3D()
 cube.add(cone)
-cube.position.set(-9.0,1.0,-9.0)
+cube.position.set(gridMapHelper.getGlobalXPositionFromCoord(0),1.0,gridMapHelper.getGlobalZPositionFromCoord(0))
 
 const sphereGeometry = new THREE.SphereGeometry(1)
 const sphereMaterial = new THREE.MeshLambertMaterial({color: "rgb(0,0,255)"})
 const sphere = new THREE.Mesh(sphereGeometry,sphereMaterial)
-sphere.position.set(5.0,1.0,3.0)
+sphere.position.set(gridMapHelper.getGlobalXPositionFromCoord(7),1.0,gridMapHelper.getGlobalZPositionFromCoord(6))
 
 scene.add(ambientLight)
 scene.add(mainLight)
@@ -125,7 +116,7 @@ function resizeCanvasToDisplaySize()
 function andarFrente(amount)
 {
     let objectCopy = cube.clone()
-    objectCopy.translateZ(2*amount)
+    objectCopy.translateZ(gridMapHelper.getMultiplier()*amount)
     let newPosition = objectCopy.position
     let requestID
     return new Promise(function(resolve){
@@ -152,7 +143,7 @@ function andarFrente(amount)
 function andarTras(amount)
 {
     let objectCopy = cube.clone()
-    objectCopy.translateZ(-2*amount)
+    objectCopy.translateZ(-(gridMapHelper.getMultiplier()*amount))
     let newPosition = objectCopy.position
     let requestID
     return new Promise(function(resolve){
@@ -179,7 +170,7 @@ function andarTras(amount)
 function girarDireita()
 {
     let objectCopy = cube.clone()
-    objectCopy.rotateY(-90 * (Math.PI/180))
+    objectCopy.rotateY(degreeToRadians(-90))
     let newPosition = new THREE.Quaternion()
     newPosition.setFromEuler(objectCopy.rotation)
     let requestID
@@ -188,7 +179,7 @@ function girarDireita()
         {
             if(!cube.quaternion.equals(newPosition) && !cancelExecution)
             {
-                cube.quaternion.rotateTowards(newPosition,1 * (Math.PI/180))
+                cube.quaternion.rotateTowards(newPosition,degreeToRadians(1))
                 requestID = requestAnimationFrame(rotateCube)
             }
             else
@@ -207,7 +198,7 @@ function girarDireita()
 function girarEsquerda()
 {
     let objectCopy = cube.clone()
-    objectCopy.rotateY(90 * (Math.PI/180))
+    objectCopy.rotateY(degreeToRadians(90))
     let newPosition = new THREE.Quaternion()
     newPosition.setFromEuler(objectCopy.rotation.clone())
     let requestID
@@ -216,7 +207,7 @@ function girarEsquerda()
         {
             if(!cube.quaternion.equals(newPosition) && !cancelExecution)
             {
-                cube.quaternion.rotateTowards(newPosition,1 * (Math.PI/180))
+                cube.quaternion.rotateTowards(newPosition,degreeToRadians(1))
                 requestID = requestAnimationFrame(rotateCube)
             }
             else
@@ -234,18 +225,14 @@ function girarEsquerda()
 
 function checkCollision(object1,object2)
 {
-    object1.geometry.computeBoundingBox()
-    object2.geometry.computeBoundingBox()
-
-    object1.updateMatrixWorld()
-    object2.updateMatrixWorld()
-
-    let obj1Box = object1.geometry.boundingBox.clone()
-    obj1Box.applyMatrix4(object1.matrixWorld)
-    let obj2Box = object2.geometry.boundingBox.clone()
-    obj2Box.applyMatrix4(object2.matrixWorld)
-
-    return obj2Box.intersectsBox(obj1Box)
+    if(gridMapHelper.getXCoordFromGlobalPosition(object1.position.x) == gridMapHelper.getXCoordFromGlobalPosition(object2.position.x) && gridMapHelper.getZCoordFromGlobalPosition(object1.position.z) == gridMapHelper.getZCoordFromGlobalPosition(object2.position.z))
+    {
+        return true
+    }
+    else
+    {
+        return false
+    }
 }
 
 function contemEsfera()
@@ -254,7 +241,7 @@ function contemEsfera()
     {
         return
     }
-    let result = checkCollision(cube.children[0],sphere)
+    let result = checkCollision(cube,sphere)
     
     if(!result)
     {
@@ -386,7 +373,7 @@ function parseCode(code)
 
 function resetLevel()
 {
-    cube.position.set(-9.0,1.0,-9.0)
+    cube.position.set(gridMapHelper.getGlobalXPositionFromCoord(0),1.0,gridMapHelper.getGlobalZPositionFromCoord(0))
     cube.rotation.set(0,0,0)
     sphere.visible = true
 }
@@ -399,10 +386,8 @@ execBtn.addEventListener("click",async function(){
     {
         resetLevel()
         document.getElementById("execute").disabled = true
-        //document.getElementById("reset").disabled = true
         await eval(codeParsed)
         document.getElementById("execute").disabled = false
-        //document.getElementById("reset").disabled = false
     }
 })
 

@@ -119,12 +119,15 @@ function andarFrente(amount)
     objectCopy.translateZ(gridMapHelper.getMultiplier()*amount)
     let newPosition = objectCopy.position
     let requestID
+    let alpha = 0.01
     return new Promise(function(resolve){
         function translateCube()
         {
             if((cube.position.x.toFixed(2) != newPosition.x.toFixed(2)||cube.position.y.toFixed(2) != newPosition.y.toFixed(2)||cube.position.z.toFixed(2) != newPosition.z.toFixed(2)) && !cancelExecution)
             {
-                cube.position.lerp(newPosition,0.05)
+                cube.position.lerp(newPosition,alpha)
+                console.log(alpha)
+                alpha += 0.001
                 requestID = requestAnimationFrame(translateCube)
             }
             else
@@ -146,12 +149,14 @@ function andarTras(amount)
     objectCopy.translateZ(-(gridMapHelper.getMultiplier()*amount))
     let newPosition = objectCopy.position
     let requestID
+    let alpha = 0.05
     return new Promise(function(resolve){
         function translateCube()
         {
             if((cube.position.x.toFixed(2) != newPosition.x.toFixed(2)||cube.position.y.toFixed(2) != newPosition.y.toFixed(2)||cube.position.z.toFixed(2) != newPosition.z.toFixed(2)) && !cancelExecution)
             {
-                cube.position.lerp(newPosition,0.05)
+                cube.position.lerp(newPosition,alpha)
+                alpha += 0.001
                 requestID = requestAnimationFrame(translateCube)
             }
             else

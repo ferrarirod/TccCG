@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { GridMapHelper } from '../../helpers/GridMapHelper'
 import { degreeToRadians,resizeCanvasToDisplaySize } from '../../helpers/Util'
-import {editor} from '../../components/global/editor'
+import {editor,readOnlyState} from '../../components/global/editor'
 
 var cancelExecution = false
 
@@ -82,7 +82,9 @@ cube.position.set(gridMapHelper.getGlobalXPositionFromCoord(0),1.0,gridMapHelper
 const sphereGeometry = new THREE.SphereGeometry(1)
 const sphereMaterial = new THREE.MeshLambertMaterial({color: "rgb(0,0,255)"})
 const sphere = new THREE.Mesh(sphereGeometry,sphereMaterial)
-sphere.position.set(gridMapHelper.getGlobalXPositionFromCoord(7),1.0,gridMapHelper.getGlobalZPositionFromCoord(6))
+var spherePosX = Math.floor(Math.random() * (9 - 1)) + 1
+var spherePosZ = Math.floor(Math.random() * (9 - 1)) + 1
+sphere.position.set(gridMapHelper.getGlobalXPositionFromCoord(spherePosX),1.0,gridMapHelper.getGlobalZPositionFromCoord(spherePosZ))
 
 scene.add(ambientLight)
 scene.add(mainLight)
@@ -109,7 +111,6 @@ function andarFrente(amount)
             if((cube.position.x.toFixed(2) != newPosition.x.toFixed(2)||cube.position.y.toFixed(2) != newPosition.y.toFixed(2)||cube.position.z.toFixed(2) != newPosition.z.toFixed(2)) && !cancelExecution)
             {
                 cube.position.lerp(newPosition,alpha)
-                console.log(alpha)
                 alpha += 0.001
                 requestID = requestAnimationFrame(translateCube)
             }
@@ -132,7 +133,7 @@ function andarTras(amount)
     objectCopy.translateZ(-(gridMapHelper.getMultiplier()*amount))
     let newPosition = objectCopy.position
     let requestID
-    let alpha = 0.05
+    let alpha = 0.01
     return new Promise(function(resolve){
         function translateCube()
         {
@@ -366,6 +367,18 @@ function resetLevel()
     sphere.visible = true
 }
 
+function winCondition()
+{
+    if(checkCollision(cube,sphere) && !sphere.visible)
+    {
+        return true
+    }
+    else
+    {
+        return false
+    }
+}
+
 const execBtn = document.getElementById("execute")
 execBtn.addEventListener("click",async function(){
     let codeParsed = parseCode(editor.state.doc.toString())
@@ -375,7 +388,18 @@ execBtn.addEventListener("click",async function(){
         resetLevel()
         document.getElementById("execute").disabled = true
         await eval(codeParsed)
-        document.getElementById("execute").disabled = false
+        if(winCondition())
+        {
+            readOnlyState.doc = editor.state.doc
+            editor.setState(readOnlyState)
+            document.getElementById('winMessage').classList.remove('invisible')
+            document.getElementById('advanceBtn').classList.remove('invisible')
+            document.getElementById("reset").disabled = true
+        }
+        else
+        {
+            document.getElementById("execute").disabled = false
+        }
     }
 })
 

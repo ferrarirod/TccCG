@@ -1,0 +1,1 @@
+function importComponent(e,t){let n=new XMLHttpRequest;n.open("GET",e,!0),n.onreadystatechange=function(){if(4!==this.readyState)return;if(200!==this.status)return;let e=document.getElementById(t),n=document.createElement("div");n.innerHTML=this.responseText;let i=n.firstElementChild;e.replaceWith(i)},n.send()}

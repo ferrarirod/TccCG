@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { GridMapHelper } from '../../helpers/GridMapHelper'
-import { degreeToRadians } from '../../helpers/Util'
+import { degreeToRadians,resizeCanvasToDisplaySize } from '../../helpers/Util'
 import {editor} from '../../components/global/editor'
 
 var cancelExecution = false
@@ -57,7 +57,7 @@ camera.position.set(0,15,30)
 const renderer = new THREE.WebGLRenderer({canvas: document.getElementById("sceneView")})
 
 window.addEventListener( 'resize', function(){
-    resizeCanvasToDisplaySize();
+    resizeCanvasToDisplaySize(renderer,camera);
 }, false );
 
 const ambientLight = new THREE.HemisphereLight('white','darkslategrey',0.5)
@@ -93,24 +93,7 @@ scene.add(cube)
 function animate() {
     requestAnimationFrame(animate)
     controls.update()
-    render()
-}
-
-function render() {
     renderer.render(scene, camera)
-}
-
-function resizeCanvasToDisplaySize() 
-{
-    const canvas = renderer.domElement;
-    const width = canvas.clientWidth;
-    const height = canvas.clientHeight;
-    if(canvas.width !== width ||canvas.height !== height) 
-    {
-        renderer.setSize(width, height, false);
-        camera.aspect = width / height;
-        camera.updateProjectionMatrix();
-    }
 }
 
 function andarFrente(amount)
@@ -407,5 +390,5 @@ clsConsoleBtn.addEventListener("click",function(){
     document.getElementById("console-printing").innerHTML = null
 })
 
-resizeCanvasToDisplaySize()
+resizeCanvasToDisplaySize(renderer,camera)
 animate()

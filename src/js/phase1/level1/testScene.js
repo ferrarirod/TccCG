@@ -1,8 +1,8 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import { GridMapHelper } from './GridMapHelper'
-import { degreeToRadians } from './Util'
-import {editor} from './frontendTools'
+import { GridMapHelper } from '../../helpers/GridMapHelper'
+import { degreeToRadians } from '../../helpers/Util'
+import {editor} from '../../components/global/editor'
 
 var cancelExecution = false
 

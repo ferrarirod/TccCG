@@ -10,6 +10,8 @@ export class GridMapHelper {
         this.planeColor = planeColor
         this.initialX = (divisions - 1) * -1
         this.initialZ = (divisions - 1) * -1
+        this.endX = divisions - 1
+        this.endZ = divisions - 1
     }
     
     createGridPlane()
@@ -57,5 +59,41 @@ export class GridMapHelper {
     getMultiplier()
     {
         return 2
+    }
+
+    borderXOfMap(x)
+    {
+        if(this.getXCoordFromGlobalPosition(x) > 0 && this.getXCoordFromGlobalPosition(x) < this.getXCoordFromGlobalPosition(this.endX))
+        {
+            return false
+        }
+        else
+        {
+            return true
+        }
+    }
+
+    borderZOfMap(z)
+    {
+        if(this.getXCoordFromGlobalPosition(z) > 0 && this.getXCoordFromGlobalPosition(z) < this.getXCoordFromGlobalPosition(this.endZ))
+        {
+            return false
+        }
+        else
+        {
+            return true
+        }   
+    }
+
+    borderMapCollision(position,newPosition)
+    {
+        if((this.borderXOfMap(position.x) && this.borderXOfMap(newPosition.x))||(this.borderZOfMap(position.z) && this.borderXOfMap(newPosition.z)))
+        {
+            return true
+        }
+        else
+        {
+            return false
+        }
     }
 }

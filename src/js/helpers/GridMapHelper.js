@@ -12,6 +12,7 @@ export class GridMapHelper {
         this.initialZ = (divisions - 1) * -1
         this.endX = divisions - 1
         this.endZ = divisions - 1
+        this.obstacles = []
     }
     
     createGridPlane()
@@ -63,7 +64,7 @@ export class GridMapHelper {
 
     borderXOfMap(x)
     {
-        if(this.getXCoordFromGlobalPosition(x) > 0 && this.getXCoordFromGlobalPosition(x) < this.getXCoordFromGlobalPosition(this.endX))
+        if(this.getXCoordFromGlobalPosition(x) >= 0 && this.getXCoordFromGlobalPosition(x) <= this.getXCoordFromGlobalPosition(this.endX))
         {
             return false
         }
@@ -75,7 +76,7 @@ export class GridMapHelper {
 
     borderZOfMap(z)
     {
-        if(this.getXCoordFromGlobalPosition(z) > 0 && this.getXCoordFromGlobalPosition(z) < this.getXCoordFromGlobalPosition(this.endZ))
+        if(this.getXCoordFromGlobalPosition(z) >= 0 && this.getXCoordFromGlobalPosition(z) <= this.getXCoordFromGlobalPosition(this.endZ))
         {
             return false
         }
@@ -85,9 +86,9 @@ export class GridMapHelper {
         }   
     }
 
-    borderMapCollision(position,newPosition)
+    borderMapCollision(position)
     {
-        if((this.borderXOfMap(position.x) && this.borderXOfMap(newPosition.x))||(this.borderZOfMap(position.z) && this.borderXOfMap(newPosition.z)))
+        if(this.borderXOfMap(position.x)||this.borderZOfMap(position.z))
         {
             return true
         }
@@ -96,4 +97,55 @@ export class GridMapHelper {
             return false
         }
     }
+
+    addObstacle(minX,maxX,minZ,maxZ)
+    {
+        this.obstacles.push(
+            {
+                minX: minX,
+                maxX: maxX,
+                minZ: minZ,
+                maxZ: maxZ
+            }
+        )
+    }
+
+    obstacleCollision(position,obstacle)
+    {
+        let positionXCoord = this.getXCoordFromGlobalPosition(position.x)
+        let positionZCoord = this.getZCoordFromGlobalPosition(position.z)
+
+        console.log([positionXCoord,positionZCoord])
+        if((positionXCoord < obstacle.minX || positionZCoord < obstacle.minZ) || (positionXCoord > obstacle.maxX || positionZCoord > obstacle.maxZ))
+        {
+            return false
+        }
+        else
+        {
+            return true
+        }
+    }
+
+    collisionTests(position)
+    {
+        if(!this.borderMapCollision(position))
+        {
+            let result
+            for(let i = 0;i < this.obstacles.length;i++)
+            {
+                result = this.obstacleCollision(position,this.obstacles[i])
+                if(result)
+                {
+                    return result
+                }
+            }
+            
+            return result
+        }
+        else
+        {
+            return true
+        }
+    }
+
 }

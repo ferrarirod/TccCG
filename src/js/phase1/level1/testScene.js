@@ -71,6 +71,8 @@ const gridMapHelper = new GridMapHelper()
 
 const plane = gridMapHelper.createGridPlane()
 
+gridMapHelper.addObstacle(1,4,1,4)
+
 const coneGeometry = new THREE.ConeGeometry(1,2)
 const coneMaterial = new THREE.MeshLambertMaterial({color: "rgb(255,0,0)"})
 const cone = new THREE.Mesh(coneGeometry, coneMaterial)
@@ -108,7 +110,8 @@ function andarFrente(amount)
     return new Promise(function(resolve){
         function translateCube()
         {
-            if((cube.position.x.toFixed(2) != newPosition.x.toFixed(2)||cube.position.y.toFixed(2) != newPosition.y.toFixed(2)||cube.position.z.toFixed(2) != newPosition.z.toFixed(2)) && !cancelExecution)
+            let collision = gridMapHelper.collisionTests(cube.position)
+            if((cube.position.x.toFixed(2) != newPosition.x.toFixed(2)||cube.position.z.toFixed(2) != newPosition.z.toFixed(2)) && !cancelExecution && !collision)
             {
                 cube.position.lerp(newPosition,alpha)
                 alpha += 0.001
@@ -116,6 +119,11 @@ function andarFrente(amount)
             }
             else
             {
+                if(collision)
+                {
+                    printOnConsole("Não há como prosseguir por esse caminho.")
+                    cancelExecution = true
+                }
                 cancelAnimationFrame(requestID)
                 objectCopy.children[0].geometry.dispose()
                 objectCopy.children[0].material.dispose()
@@ -137,7 +145,8 @@ function andarTras(amount)
     return new Promise(function(resolve){
         function translateCube()
         {
-            if((cube.position.x.toFixed(2) != newPosition.x.toFixed(2)||cube.position.y.toFixed(2) != newPosition.y.toFixed(2)||cube.position.z.toFixed(2) != newPosition.z.toFixed(2)) && !cancelExecution)
+            let collision = gridMapHelper.collisionTests(cube.position)
+            if((cube.position.x.toFixed(2) != newPosition.x.toFixed(2)||cube.position.z.toFixed(2) != newPosition.z.toFixed(2)) && !cancelExecution && !collision)
             {
                 cube.position.lerp(newPosition,alpha)
                 alpha += 0.001
@@ -145,6 +154,11 @@ function andarTras(amount)
             }
             else
             {
+                if(collision)
+                {
+                    printOnConsole("Não há como prosseguir por esse caminho.")
+                    cancelExecution = true
+                }
                 cancelAnimationFrame(requestID)
                 objectCopy.children[0].geometry.dispose()
                 objectCopy.children[0].material.dispose()

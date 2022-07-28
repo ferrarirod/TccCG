@@ -47,13 +47,13 @@ export class GridMapHelper {
 
     getXCoordFromGlobalPosition(x)
     {
-        let coord = (Math.round(x) - this.initialX)/this.getMultiplier()
+        let coord = Math.round((Math.round(x) - this.initialX)/this.getMultiplier())
         return coord
     }
 
     getZCoordFromGlobalPosition(z)
     {
-        let coord = (Math.round(z) - this.initialZ)/this.getMultiplier()
+        let coord = Math.round((Math.round(z) - this.initialZ)/this.getMultiplier())
         return coord   
     }
 

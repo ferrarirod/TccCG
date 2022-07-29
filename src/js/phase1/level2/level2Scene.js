@@ -71,28 +71,26 @@ const gridMapHelper = new GridMapHelper()
 
 const plane = gridMapHelper.createGridPlane()
 
-gridMapHelper.addObstacle(1,4,1,4)
-
 const coneGeometry = new THREE.ConeGeometry(1,2)
 const coneMaterial = new THREE.MeshLambertMaterial({color: "rgb(255,0,0)"})
 const cone = new THREE.Mesh(coneGeometry, coneMaterial)
 cone.rotateX(degreeToRadians(90))
-const cube = new THREE.Object3D()
-cube.add(cone)
-cube.position.set(gridMapHelper.getGlobalXPositionFromCoord(0),1.0,gridMapHelper.getGlobalZPositionFromCoord(0))
+const actor = new THREE.Object3D()
+actor.add(cone)
+actor.position.set(gridMapHelper.getGlobalXPositionFromCoord(0),1.0,gridMapHelper.getGlobalZPositionFromCoord(5))
+actor.rotateY(degreeToRadians(90))
+console.log(actor.rotation)
 
 const sphereGeometry = new THREE.SphereGeometry(1)
 const sphereMaterial = new THREE.MeshLambertMaterial({color: "rgb(0,0,255)"})
 const sphere = new THREE.Mesh(sphereGeometry,sphereMaterial)
-var spherePosX = Math.floor(Math.random() * (9 - 1)) + 1
-var spherePosZ = Math.floor(Math.random() * (9 - 1)) + 1
-sphere.position.set(gridMapHelper.getGlobalXPositionFromCoord(spherePosX),1.0,gridMapHelper.getGlobalZPositionFromCoord(spherePosZ))
+sphere.position.set(gridMapHelper.getGlobalXPositionFromCoord(8),1.0,gridMapHelper.getGlobalZPositionFromCoord(2))
 
 scene.add(ambientLight)
 scene.add(mainLight)
 scene.add(plane)
 scene.add(sphere)
-scene.add(cube)
+scene.add(actor)
 
 function animate() {
     requestAnimationFrame(animate)
@@ -102,20 +100,20 @@ function animate() {
 
 function andarFrente(amount)
 {
-    let objectCopy = cube.clone()
+    let objectCopy = actor.clone()
     objectCopy.translateZ(gridMapHelper.getMultiplier()*amount)
     let newPosition = objectCopy.position
     let requestID
     let alpha = 0.01
     return new Promise(function(resolve){
-        function translateCube()
+        function translateActor()
         {
-            let collision = gridMapHelper.collisionTests(cube.position)
-            if((cube.position.x.toFixed(2) != newPosition.x.toFixed(2)||cube.position.z.toFixed(2) != newPosition.z.toFixed(2)) && !cancelExecution && !collision)
+            let collision = gridMapHelper.collisionTests(actor.position)
+            if((actor.position.x.toFixed(2) != newPosition.x.toFixed(2)||actor.position.z.toFixed(2) != newPosition.z.toFixed(2)) && !cancelExecution && !collision)
             {
-                cube.position.lerp(newPosition,alpha)
+                actor.position.lerp(newPosition,alpha)
                 alpha += 0.001
-                requestID = requestAnimationFrame(translateCube)
+                requestID = requestAnimationFrame(translateActor)
             }
             else
             {
@@ -131,26 +129,26 @@ function andarFrente(amount)
             }
         }
         
-        requestID = requestAnimationFrame(translateCube)
+        requestID = requestAnimationFrame(translateActor)
     })
 }
 
 function andarTras(amount)
 {
-    let objectCopy = cube.clone()
+    let objectCopy = actor.clone()
     objectCopy.translateZ(-(gridMapHelper.getMultiplier()*amount))
     let newPosition = objectCopy.position
     let requestID
     let alpha = 0.01
     return new Promise(function(resolve){
-        function translateCube()
+        function translateActor()
         {
-            let collision = gridMapHelper.collisionTests(cube.position)
-            if((cube.position.x.toFixed(2) != newPosition.x.toFixed(2)||cube.position.z.toFixed(2) != newPosition.z.toFixed(2)) && !cancelExecution && !collision)
+            let collision = gridMapHelper.collisionTests(actor.position)
+            if((actor.position.x.toFixed(2) != newPosition.x.toFixed(2)||actor.position.z.toFixed(2) != newPosition.z.toFixed(2)) && !cancelExecution && !collision)
             {
-                cube.position.lerp(newPosition,alpha)
+                actor.position.lerp(newPosition,alpha)
                 alpha += 0.001
-                requestID = requestAnimationFrame(translateCube)
+                requestID = requestAnimationFrame(translateActor)
             }
             else
             {
@@ -166,24 +164,24 @@ function andarTras(amount)
             }
         }
         
-        requestID = requestAnimationFrame(translateCube)
+        requestID = requestAnimationFrame(translateActor)
     })
 }
 
 function girarDireita()
 {
-    let objectCopy = cube.clone()
+    let objectCopy = actor.clone()
     objectCopy.rotateY(degreeToRadians(-90))
     let newPosition = new THREE.Quaternion()
     newPosition.setFromEuler(objectCopy.rotation)
     let requestID
     return new Promise(function(resolve){
-        function rotateCube()
+        function rotateActor()
         {
-            if(!cube.quaternion.equals(newPosition) && !cancelExecution)
+            if(!actor.quaternion.equals(newPosition) && !cancelExecution)
             {
-                cube.quaternion.rotateTowards(newPosition,degreeToRadians(1))
-                requestID = requestAnimationFrame(rotateCube)
+                actor.quaternion.rotateTowards(newPosition,degreeToRadians(1))
+                requestID = requestAnimationFrame(rotateActor)
             }
             else
             {
@@ -194,24 +192,24 @@ function girarDireita()
             }
         }
 
-        requestID = requestAnimationFrame(rotateCube)
+        requestID = requestAnimationFrame(rotateActor)
     })
 }
 
 function girarEsquerda()
 {
-    let objectCopy = cube.clone()
+    let objectCopy = actor.clone()
     objectCopy.rotateY(degreeToRadians(90))
     let newPosition = new THREE.Quaternion()
     newPosition.setFromEuler(objectCopy.rotation.clone())
     let requestID
     return new Promise(function(resolve){
-        function rotateCube()
+        function rotateActor()
         {
-            if(!cube.quaternion.equals(newPosition) && !cancelExecution)
+            if(!actor.quaternion.equals(newPosition) && !cancelExecution)
             {
-                cube.quaternion.rotateTowards(newPosition,degreeToRadians(1))
-                requestID = requestAnimationFrame(rotateCube)
+                actor.quaternion.rotateTowards(newPosition,degreeToRadians(1))
+                requestID = requestAnimationFrame(rotateActor)
             }
             else
             {
@@ -222,7 +220,7 @@ function girarEsquerda()
             }
         }
 
-        requestID = requestAnimationFrame(rotateCube)
+        requestID = requestAnimationFrame(rotateActor)
     })
 }
 
@@ -244,7 +242,7 @@ function contemEsfera()
     {
         return
     }
-    let result = checkCollision(cube,sphere)
+    let result = checkCollision(actor,sphere)
     
     if(!result)
     {
@@ -260,8 +258,16 @@ function removeEsfera()
     {
         return
     }
-    sphere.visible = false
-    printOnConsole("Esfera removida")
+
+    if(checkCollision(actor,sphere))
+    {
+        sphere.visible = false
+        printOnConsole("Esfera removida.")
+    }
+    else
+    {
+        printOnConsole("Objeto não está sobre a esfera.")
+    }
 }
 
 function printOnConsole(content)
@@ -376,14 +382,14 @@ function parseCode(code)
 
 function resetLevel()
 {
-    cube.position.set(gridMapHelper.getGlobalXPositionFromCoord(0),1.0,gridMapHelper.getGlobalZPositionFromCoord(0))
-    cube.rotation.set(0,0,0)
+    actor.position.set(gridMapHelper.getGlobalXPositionFromCoord(0),1.0,gridMapHelper.getGlobalZPositionFromCoord(5))
+    actor.rotation.set(0,degreeToRadians(90),0)
     sphere.visible = true
 }
 
 function winCondition()
 {
-    if(checkCollision(cube,sphere) && !sphere.visible)
+    if(checkCollision(actor,sphere) && !sphere.visible)
     {
         return true
     }

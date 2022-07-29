@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="utf-8" />
+        <title>ELoS - Fase 1</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="stylesheet" href="../../../scss/styles.scss">
+        <script src="../../../js/helpers/componentImporter.js"></script>
+    </head>
+    <body>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-6 vh-100">
+                    <div class="position-absolute">
+                        <h2 class="bg-warning">Fase 1 - Nível 2</h2>
+                        <p class="bg-info">
+                            Faça o cone chegar a esfera, após isso, remova a esfera.
+                        </p>
+                        <h2 id="winMessage" class="bg-success invisible">Nível Concluído</h2>
+                        <a id="advanceBtn" class="btn btn-primary invisible" href="../level3/index.html">Avançar</a>
+                    </div>
+                    <script async id="sceneArea">
+                        importComponent('../../components/global/sceneArea.html','sceneArea')
+                    </script>
+                </div>
+                <div class="col-6">
+                    <div class="row">
+                        <div class="col-12 mt-2 mb-2">
+                            <script async id="availableFunctions">
+                                importComponent('../../components/phase1/level1/availableFunctions.html','availableFunctions')
+                            </script>
+                        </div>
+                        <div class="col-12 mb-2">
+                            <script async id="codeArea">
+                                importComponent('../../components/global/codeArea.html','codeArea')
+                            </script>
+                        </div>
+                        <div class="col-12">
+                            <script async id="console">
+                                importComponent('../../components/global/console.html','console')
+                            </script>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script type="module" src="../../../js/packages/bootstrap.js"></script>
+        <script async type="module" src="../../../js/phase1/level2/level2Scene.js"></script>
+    </body>
+</html>

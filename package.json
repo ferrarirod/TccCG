@@ -4,7 +4,7 @@
   "description": "",
   "scripts": {
     "start": "parcel src/html/**/*.html",
-    "build": "parcel build src/html/**/*.html --no-source-maps --public-url ./",
+    "build": "parcel build src/html/**/*.html --no-source-maps --public-url https://ferrarirod.github.io/TccCG/",
     "deploy": "gh-pages -d dist",
     "bldndply": "rd /s /q dist && npm run build && npm run deploy"
   },
@@ -18,7 +18,7 @@
   "bugs": {
     "url": "https://github.com/ferrarirod/TccCG/issues"
   },
-  "homepage": "https://ferrarirod.github.io/TccCG",
+  "homepage": "https://ferrarirod.github.io/TccCG/",
   "devDependencies": {
     "@parcel/transformer-sass": "^2.6.2",
     "gh-pages": "^4.0.0",
